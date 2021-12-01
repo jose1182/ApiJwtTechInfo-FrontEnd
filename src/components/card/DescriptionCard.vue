@@ -16,7 +16,7 @@
 export default {
   props:{
     description:{
-      type: Array
+      type: Object
     }
   }
 }

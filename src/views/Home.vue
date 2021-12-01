@@ -1,26 +1,28 @@
 <template>
   <div class="home">
     <Navbar/>
+    <Carrousel/>
+    <Content/>
+    <Footer/>
   </div>
 </template>
 
 <script>
 import Navbar from '../components/Navbar.vue'
-import { mapState } from 'vuex'
+import Carrousel from '../components/Carrousel.vue'
+import Content from '../components/Content/Content.vue'
+import Footer from '../components/Footer.vue'
 
 export default {
   name: 'Home',
   components: {
-    Navbar
+    Navbar,
+    Carrousel,
+    Content,
+    Footer
   },
-  computed:{
-    ...mapState({
-      account: state => state
-    })
-  }
 }
 </script>
 <style scoped>
-
 
 </style>

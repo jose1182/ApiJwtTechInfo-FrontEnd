@@ -67,14 +67,11 @@ export default {
         submit(){
             const formData = new FormData()
             formData.append('image', this.selectedFile, this.selectedFile.name)
-            
-            const newPost= {
-                title: this.title,
-                content: this.content,
-                image: formData
-            }
+            formData.append('title', this.title)
+            formData.append('content', this.content)
+            console.log(this.selectedFile.name);
 
-            this.newpost(newPost);
+            this.newpost(formData);
         }
     }
 }

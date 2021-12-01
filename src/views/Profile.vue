@@ -1,168 +1,233 @@
 <template>
-    <div class="row centered-form center-block content">
-        <div class="container col-md-10 col-md-offset-1">
-            <div class="row">
-                <NavbarProfile
-                 v-bind:username="users.user.name"
-                
-                ></NavbarProfile>
-            </div>
-            <div class="container-fluid">
-                <div class="about justify-content-center">
-                    <div class="flex-column">
-                        <UserCard 
-                           v-bind:fullName="dataCard"
-                        ></UserCard>
-                        <LinksCard/>
+    <div>
+        <div>
+            <Navbar></Navbar> 
+        </div>
+        <div class="container-fluid  line-down top">
+            <div class="row line-donw py-5">
+               <div class="col-3">
+               </div>
+               <div class="col-6">
+                    <div class="row justify-content-center py-3"> 
+                        <img class="avatar" alt="100x100" src="@/assets/img/persona.webp" data-holder-rendered="true">
                     </div>
-                    <div class="card-margin col-md-9 justify-content-center">
-
-                        <AboutCard
-                            v-bind:user="dataAbout"
-                        ></AboutCard>
-
-                        <DescriptionCard
-                            v-bind:description="dataProfile"                        
-                        ></DescriptionCard>
-
-
-                        <PostCard></PostCard>
-
-                    <PostCard></PostCard>
-
+                    <div v-if="profile" class="row justify-content-center pt-3">
+                        <h4>{{ userData.fullname }}</h4>
+                    </div>
+                    <div class="row justify-content-center pt-2">
+                        <h5>Barcelona</h5>
+                    </div>
+                    <div class="row justify-content-center pt-4">
+                        <div class="pr-5"><strong>{{ userData.postCount }}</strong> posts</div>
+                        <div class="pr-5"><strong>{{ userData.followersCount }}</strong> followers</div>
+                        <div class="pr-5"><strong>{{ userData.followingCount }}</strong> following</div>
+                    </div>
+                    <div v-if="account.user.user.id != userId" class="row justify-content-center pt-4">
+                        <FollowButton                            
+                            v-bind:userId="this.profile? this.profile.user.id: null"
+                            v-bind:follows="userData.follows"
+                            @update-profile="reloadData"> 
+                        </FollowButton>
                     </div>
                 </div>
+               <div class="col-3">
+
+               </div>
+            </div>
+        </div>
+        <div class="container-fluid " v-if="profile ">
+            <div class="row justify-content-center py-5">
+                <h4><strong> Posts</strong></h4>
+            </div>            
+            <div class="row padding-y">
+                <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mt-5" v-for="(value, index) in profile.user.posts" v-bind:key="index">
+                    <div class="row pl-4">
+                        <div class="col-12 pr-4">
+                            <PostCard 
+                                v-bind:post="value"
+                                @click.native="routerProfile(value.user.id)"
+                            ></PostCard>
+                        </div>     
+                    </div>
+                </div>
+            </div>                             
+        </div>
+        <div class="container-fluid box-botton top" >
+            <div class="row padding-y">
+                <div class="col-8 pl-4">
+                    <div class="row pt-0 pb-4">
+                        <h2>The best specialists and projects available to you</h2>
+                    </div>
+                    <div class="row">
+                        <ul class="d-flex">
+                            <li class=" d-flex justify-content-between align-items-center">
+                               <strong><a href=""> Robotics</a></strong> 
+                                <span class="badge badge-primary badge-pill ml-5">14</span>
+                            </li>
+                            <li class=" d-flex justify-content-between align-items-center mx-2">
+                                <strong><a href="">Plc</a></strong> 
+                                <span class="badge badge-primary badge-pill ml-5">7</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-4">
+
+                </div>
+                <hr>
             </div>
         </div>
     </div>
-
-
 </template>
 <script>
 
-import UserCard from '../components/card/UserCard'
-import NavbarProfile from '../components/navbar/NavbarProfile'
-import AboutCard from '../components/card/AboutCard'
-import LinksCard from '../components/card/LinksCard'
-import DescriptionCard from '../components/card/DescriptionCard'
-import PostCard from '../components/card/PostCard'
 
+import PostCard from '../components/card/PostCard'
+import Navbar from '../components/Navbar'
+import FollowButton from '../components/FollowButton'
 import { mapState, mapActions } from 'vuex'
 
 export default {
     name: 'Profile',
 
     components:{
-        UserCard,
-        NavbarProfile,
-        AboutCard,
-        LinksCard,
-        DescriptionCard,
-        PostCard
+        PostCard,
+        Navbar,
+        FollowButton
+
     },
 
     data(){
         return{
-
         }
     },
+
+    props: ['userId', 'userName'],
+
     computed: {
         ...mapState({
             account: state => state.account,
-            users: state => state.users.all.item
+            profile: state => state.profile.allProfile.item,    
         }),
 
-        //getting full name
-        dataCard(){
-            return this.getFullName()
+        
+        userData(){
+            return {
+                    fullname: this.profile.user.name ? this.profile.user.name + ' ' + this.profile.user.surname: '',
+                    postCount:this.profile? this.profile.postCount: 0,
+                    follows : this.profile? this.profile.follows: false,
+                    followersCount:this.profile? this.profile.followersCount: 0,
+                    followingCount:this.profile? this.profile.followingCount: 0 
+            }
         },
-        dataAbout(){
-            return this.getUser()
+        userAbout(){
+            return {
+                    fullname: this.profile? this.profile.user.name + this.profile.user.surname: '',
+                    email: this.profile? this.profile.user.email: '',
+                    phone: this.profile? this.profile.user.phonenumber: '',
+                    mobile: 'need to be programmer'
+            }
         },
-        dataProfile(){
-            return this.getUserProfile()
-        }
+        userDescription(){
+            return{
+                title: this.profile? this.profile.user.profile.title: '',
+                description: this.profile? this.profile.user.profile.description: '',
+            }
+        },
     },
+
+    mounted(){
+        this.getProfile(this.userId);
+    },
+
     created(){
-        this.getProfile();
+        this.getProfile(this.userId);
     },
+
     methods: {
 
         //mamps from store
-        ...mapActions('users', {
-            getProfile: 'getProfile'
+        ...mapActions('profile', {
+            getProfile: 'getProfile',
         }),
-
-        //get fullname
-        getFullName(){
-            return this.users.user.name + ' ' + this.users.user.surname
-        },
-        //get email
-        getEmail(){
-            return this.users.user.email
-        },
-        //getphone
-        getPhone(){
-            return this.users.user.phonenumber
-        },
-        //gtmobile
-        getMobile(){
-            return '661287901 -> not included in data table'
-        },
-        //getTitle
-        getTitle(){
-            return this.users.user.profile.title
-        },
-        getDescription(){
-            return this.users.user.profile.description
-        },
-        //*---------------------*
-        getUser(){
-            return {
-                    fullname: this.getFullName(),
-                    email: this.getEmail(),
-                    phone: this.getPhone(),
-                    mobile: this.getMobile()
-            }
-        },
-
-        getUserProfile(){
-            return {
-                    title: this.getTitle(),
-                    description: this.getDescription(),
-            }
+        
+         reloadData(){
+            this.getProfile(this.userId);
         }
+       
 
-     }
-
-    
+     },
+        //when a component is reused. */
+    beforeRouteUpdate(to, from, next){
+        this.getProfile(to.params.userId);
+        next();
+    },
 }
 </script>
 <style scoped>
 
-
-.content{
-    margin-top: 80px;
-    background: #d8dbe9;
-    padding-top: 40px;
-
-}
-.about{
-    display: flex;
-
-}
-
-@media (max-width: 428px){
-
-.about{
-    display: block;
-    align-items: center;
-   
-}
-.card-margin{
+*{
     margin: 0%;
     padding: 0%;
 }
+
+.row{
+    background: #f4f7f6;
+    margin: 0%;
+}
+
+
+.box-botton .row{
+    background: #FFFFFF!important;
+    z-index: 2;
+}
+
+.top{
+    margin-top: 75px;
+}
+
+.box-botton {
+    margin-bottom: 90px;
+}
+
+.avatar {
+    vertical-align: middle;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    z-index: 1;
+}
+
+.avatar img{
+    max-width: 100%;
+    height: auto;
+}
+
+.containar-fluid {
+    margin: 0%;
+    height: 100vh;
+    width: 100vw;
+}
+
+.line-down{
+    background: #A8EDFF!important;
+    border-bottom: solid 2px rgb(233, 232, 232);
+}
+
+h2 {
+    text-transform: uppercase;
+}
+
+.about{
+    display: flex
+}
+
+@media screen and (min-width: 570px){
+
+    .padding-y {
+        padding: 0px 60px 0px 60px;
+    }
 
 }
 
